@@ -33,4 +33,4 @@ For more information, visit [Bryllite Token Sales Details](https://bryllite.com/
 
 # Bryllite ERC20 Token Contract
 
-Bryllite ERC20 Token contract code will be update soon.
+Bryllite ERC20 Token contract code will be updated soon.
