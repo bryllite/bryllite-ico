@@ -38,6 +38,9 @@ For more information, visit [Bryllite Token Sales Details](https://bryllite.com/
 
 Bryllite `ERC20` Token contract code. Built on the [OpenZeppelin](https://openzeppelin.org) framework.
 
+* `Private Pre-Sales` & `Public Pre-Sales` contract code
+* `Public Sales` contract will be updated after Pre-Sales are over
+
 # License
 
 Code release under the [MIT License](https://github.com/bryllite/bryllite-ico/blob/master/LICENSE).
