@@ -1,9 +1,12 @@
 # About the Bryllite Project
+![BRC Logo](https://user-images.githubusercontent.com/34913181/38799199-bb84f384-419e-11e8-8c48-d58990d008d1.png)
+
 The Bryllite project is a block chain platform aimed at building a "Hyper Connected Game" ecosystem.
 
 Bryllite Platform is a new block chain platform that enables game assets to be moved and traded between disparate games by storing game assets such as account information, character information, and equipment/item information in a block chain.
 
 Bryllite white paper can be found on <https://bryllite.com/whitepaper_en.asp> ( [Korean](https://bryllite.com/whitepaper_ko.asp), [Japanese](https://bryllite.com/whitepaper_ja.asp), [Chinese](https://bryllite.com/whitepaper_zh.asp) )
+
 For more information, Visit [Bryllite official website](https://bryllite.com/).
 
 # Bryllite Token Sales Details
