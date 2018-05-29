@@ -41,6 +41,10 @@ Bryllite `ERC20` Token contract code. Built on the [OpenZeppelin](https://openze
 * `Private Pre-Sales` & `Public Pre-Sales` contract code
 * `Public Sales` contract will be updated after Pre-Sales are over
 
+# Bryllite ERC20 Token Contract code has been verified by the Hexlant, Inc.
+
+For more information about Hexlant, Inc. visit [hexlant, Inc](https://hexlant.com)
+
 # License
 
 Code release under the [MIT License](https://github.com/bryllite/bryllite-ico/blob/master/LICENSE).

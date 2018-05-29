@@ -17,20 +17,38 @@ contract BrylliteToken is PausableToken {
 
     string  public  constant name = "Bryllite";
     string  public  constant symbol = "BRC";
-    uint8   public  constant decimals = 8;
+    uint8   public  constant decimals = 18;
 
     enum stage {Initial,First,Second}
 
-    mapping (address => bool) public frozenAccount;
+    // mapping (address => bool) public frozenAccount;
     
-    uint    public  saleStartTime;
-    uint    public  date_unlockApprovedInvestor_01;
-    uint    public  date_unlockApprovedInvestor_02;
+     // new feature, Lee
+    mapping(address => uint) approvedInvestorListWithDate;
 
-    // List of approved investors
-    mapping(address => bool) approvedInvestorList_01;
-    mapping(address => bool) approvedInvestorList_02;
+    // struct _DateTime {
+    //         uint16 year;
+    //         uint8 month;
+    //         uint8 day;
+    //         uint8 hour;
+    //         uint8 minute;
+    //         uint8 second;
+    //         uint8 weekday;
+    // }
 
+    // uint constant DAY_IN_SECONDS = 86400;
+    // uint constant YEAR_IN_SECONDS = 31536000;
+    // uint constant LEAP_YEAR_IN_SECONDS = 31622400;
+
+    // uint constant HOUR_IN_SECONDS = 3600;
+    // uint constant MINUTE_IN_SECONDS = 60;
+    // uint16 constant ORIGIN_YEAR = 1970;
+
+
+    // uint startDate = 1514764800; // 2018-01-01 00:00:00
+    // uint endDate = 1518220800; // 2018-02-10 00:00:00
+
+    // uint diff = (endDate - startDate) / 60 / 60 / 24; // 40 days 
 
     function BrylliteToken( address _admin, uint _totalTokenAmount ) 
     {
@@ -44,117 +62,87 @@ contract BrylliteToken is PausableToken {
 
    // modifier afterDeadline() { if (now >= deadline) _; }
     // Freeze funds.
-    event FrozenFunds(address target, bool frozen);
+    // event FrozenFunds(address target, bool frozen);
+    event LockFundsReleaseTime(address target, uint time);
 
     // Owner can set any account into freeze state.
     // It is helpful in case if account holder has lost his key and he want administrator to freeze account until account key is covered.
     // @ target : account address
     // @ state : state of account 
-    function freezeAccount(address target, bool freeze) onlyOwner {
-        frozenAccount[target] = freeze;
-        FrozenFunds(target, freeze);
+    // function freezeAccount(address target, bool freeze) onlyOwner {
+    //     frozenAccount[target] = freeze;
+    //     FrozenFunds(target, freeze);
+    // }
+
+    //  function totalSupply() constant returns (uint supply) {
+    //     return totalSupply;
+    // }
+
+    function getTime() internal constant returns (uint) {
+        return now;
+    }
+
+    function isUnlocked() internal returns (bool) {
+        return getTime() >= getLockFundsReleaseTime(msg.sender);
     }
 
     modifier validDestination( address to )
     {
         require(to != address(0x0));
         require(to != address(this));
-        require(!frozenAccount[msg.sender]);
-        if(getStage() == stage.Initial) 
-        { 
-            require(!approvedInvestorList_01[msg.sender]);
-            require(!approvedInvestorList_02[msg.sender]);
-        }
-        else if(getStage() == stage.First) 
-        { 
-            require(!approvedInvestorList_02[msg.sender]);
-        }
         _;
     }
 
-    modifier validInvestor01() {
-        require(approvedInvestorList_01[msg.sender]);
-        _;
-    }
-
-    modifier validInvestor02() {
-        require(approvedInvestorList_02[msg.sender]);
-        _;
-    }
-
-    function getStage() internal returns (stage) 
+    modifier onlyWhenUnlocked()
     {
-        //stage ret = stage.Free;
-        stage ret = stage.Initial;
-        if(now >= date_unlockApprovedInvestor_01)
-        {
-            ret = stage.First;
-        }
-        if(now >= date_unlockApprovedInvestor_02)
-        {
-            ret = stage.Second;
-        }
-        return ret;
+        // require(!frozenAccount[msg.sender]);
+        require(isUnlocked());            
+        _;
     }
-    
-    function transfer(address _to, uint _value) validDestination(_to) returns (bool) 
+
+    function transfer(address _to, uint _value) onlyWhenUnlocked validDestination(_to) returns (bool) 
     {
+        // require(!frozenAccount[msg.sender]);
         return super.transfer(_to, _value);
     }
 
-    function transferFrom(address _from, address _to, uint _value) validDestination(_to) returns (bool) 
+    function transferFrom(address _from, address _to, uint _value) onlyWhenUnlocked validDestination(_to) returns (bool) 
     {
+        // require(!frozenAccount[_from]);
+        // require(!frozenAccount[_to]);
+        require(getTime() >= getLockFundsReleaseTime(_from));
         return super.transferFrom(_from, _to, _value);
     }
 
-    function setUnlockTime(uint _type, uint _unlockTime) onlyOwner
-    {
-        if(_type == 1)
-        {
-            date_unlockApprovedInvestor_01 = _unlockTime;
-        } 
-        else 
-        {
-            date_unlockApprovedInvestor_02 = _unlockTime;
-        }
-    }
-
-    /// @dev Adds list of new investors to the investors list and approve all
-    /// @param _type investor type 
-    /// @param newInvestorList Array of new investors addresses to be added
-    function addInvestorList(uint _type, address[] newInvestorList) onlyOwner public 
-    {
-        for (uint i = 0; i < newInvestorList.length; i++){
-            if(_type == 1)
-            {
-                approvedInvestorList_01[newInvestorList[i]] = true;
-            } 
-            else
-            {
-                approvedInvestorList_02[newInvestorList[i]] = true;
-            } 
-        }
-    }
-
-    // /// @dev check address is approved investor
-    // /// @param _addr address
-    // function isApprovedInvestor(address _addr) onlyOwner public constant returns (bool) {
-    //     return approvedInvestorList[_addr];
+    // function getLockedFundsReleaseTime() internal constant returns (uint x)
+    // {
+    //     return approvedInvestorListWithDate[msg.sender];
     // }
 
-    /// @dev Removes list of investors from list
-    /// @param _type investor type 
-    /// @param investorList Array of addresses of investors to be removed
-    function removeInvestorList(uint _type, address[] investorList) onlyOwner public {
-        for (uint i = 0; i < investorList.length; i++){
-            if(_type == 1)
+    function getLockFundsReleaseTime(address _addr) constant returns(uint) 
+    {
+        // require(msg.sender == admin || msg.sender == owner);
+        LockFundsReleaseTime(_addr, approvedInvestorListWithDate[_addr]);
+        return approvedInvestorListWithDate[_addr];
+    }
+
+    function addInvestor(address[] newInvestorList, uint releaseTime) onlyOwner public 
+    {
+        if(releaseTime > getTime())
+        {
+            for (uint i = 0; i < newInvestorList.length; i++)
             {
-                approvedInvestorList_01[investorList[i]] = false;
-            } 
-            else
-            {
-                approvedInvestorList_02[investorList[i]] = false;
-            } 
+                approvedInvestorListWithDate[newInvestorList[i]] = releaseTime;
+            }
+        }
+    }
+
+    function removeInvestor(address[] investorList) onlyOwner public 
+    {
+        for (uint i = 0; i < investorList.length; i++)
+        {
+            approvedInvestorListWithDate[investorList[i]] = 0;
+            delete(approvedInvestorListWithDate[investorList[i]]);
         }
     }
 
@@ -184,5 +172,11 @@ contract BrylliteToken is PausableToken {
     function changeAdmin(address newAdmin) onlyOwner {
         AdminTransferred(admin, newAdmin);
         admin = newAdmin;
+    }
+
+
+    function () public payable 
+    {
+        revert();
     }
 }
